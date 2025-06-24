@@ -1,18 +1,37 @@
 receivers:
-  filelog:
+  filelog/nginx:
     include:
-      - /tmp/simple-logs.log
+      - /var/log/nginx/access.log
     start_at: end
+    
+  journald:
+    directory: /var/log/journal
+    units:
+      - containerd.service
+      - kubelet.service
+      - docker.service
 
 processors:
   batch:
     timeout: 1s
     send_batch_size: 1024
   
-  resource:
+  resource/nginx:
     attributes:
       - key: service.name
-        value: "simple-logger"
+        value: "nginx"
+        action: upsert
+      - key: log.source
+        value: "nginx_access_log"
+        action: upsert
+        
+  resource/systemd:
+    attributes:
+      - key: service.name
+        value: "systemd"
+        action: upsert
+      - key: log.source
+        value: "journald"
         action: upsert
   
   transform/nginx:
@@ -68,7 +87,12 @@ exporters:
 
 service:
   pipelines:
-    logs:
-      receivers: [filelog]
-      processors: [transform/nginx, transform/systemd, batch, resource]
+    logs/nginx:
+      receivers: [filelog/nginx]
+      processors: [transform/nginx, batch, resource/nginx]
+      exporters: [logging, otlp]
+      
+    logs/systemd:
+      receivers: [journald]
+      processors: [transform/systemd, batch, resource/systemd]
       exporters: [logging, otlp]
