@@ -15,7 +15,7 @@ processors:
         value: "simple-logger"
         action: upsert
   
-  transform:
+  transform/nginx:
     error_mode: ignore
     log_statements:
       - context: log
@@ -41,7 +41,12 @@ processors:
           - set(attributes["status_class"], "3xx") where attributes["http_status_code"] >= 300 and attributes["http_status_code"] < 400
           - set(attributes["status_class"], "4xx") where attributes["http_status_code"] >= 400 and attributes["http_status_code"] < 500
           - set(attributes["status_class"], "5xx") where attributes["http_status_code"] >= 500 and attributes["http_status_code"] < 600
-          
+
+  transform/systemd:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
           # Parse systemd logs directly from body
           - set(attributes["errno"], ExtractPatterns(body, "\"errno\":\"(?P<errno>[^\"]+)\"")["errno"]) where ExtractPatterns(body, "\"errno\":\"(?P<errno>[^\"]+)\"") != nil
           - set(attributes["log_priority"], ExtractPatterns(body, "\"priority\":\"(?P<priority>[^\"]+)\"")["priority"]) where ExtractPatterns(body, "\"priority\":\"(?P<priority>[^\"]+)\"") != nil
@@ -65,5 +70,5 @@ service:
   pipelines:
     logs:
       receivers: [filelog]
-      processors: [transform, batch, resource]
+      processors: [transform/nginx, transform/systemd, batch, resource]
       exporters: [logging, otlp]
