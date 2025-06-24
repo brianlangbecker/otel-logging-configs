@@ -1,0 +1,104 @@
+{
+  "resourceLogs": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": { "stringValue": "systemd-journal" }
+          }
+        ]
+      },
+      "scopeLogs": [
+        {
+          "logRecords": [
+            {
+              "timeUnixNano": "1719173240000000000",
+              "body": {
+                "stringValue": "{\"_BOOT_ID\":\"c4a7b6b2e9f4429db1a5a1b2c3d4e5f6\",\"_MACHINE_ID\":\"12345678901234567890123456789012\",\"_HOSTNAME\":\"web-server-01\",\"PRIORITY\":\"6\",\"_UID\":\"1000\",\"_GID\":\"1000\",\"_COMM\":\"nginx\",\"_EXE\": \"/usr/sbin/nginx\",\"_CMDLINE\":\"nginx: master process /usr/sbin/nginx\",\"_CAP_EFFECTIVE\":\"0\",\"_SYSTEMD_CGROUP\":\"/system.slice/nginx.service\",\"_SYSTEMD_UNIT\":\"nginx.service\",\"_SYSTEMD_SLICE\":\"system.slice\",\"MESSAGE\":\"Started nginx - high performance web server\",\"_PID\":\"1234\",\"_SOURCE_REALTIME_TIMESTAMP\":\"1719173240123456\"}\ncluster:prod-cluster\nflags:0\njob:systemd-journal\nmeta.signal_type:log\nnode_name:web-server-01\nSample Rate:1\nseverity:info\nseverity_code:6\ntransport:journal\n---"
+              },
+              "attributes": [
+                {
+                  "key": "body",
+                  "value": { "stringValue": "{\"_BOOT_ID\":\"c4a7b6b2e9f4429db1a5a1b2c3d4e5f6\",\"_MACHINE_ID\":\"12345678901234567890123456789012\",\"_HOSTNAME\":\"web-server-01\",\"PRIORITY\":\"6\",\"_UID\":\"1000\",\"_GID\":\"1000\",\"_COMM\":\"nginx\",\"_EXE\": \"/usr/sbin/nginx\",\"_CMDLINE\":\"nginx: master process /usr/sbin/nginx\",\"_CAP_EFFECTIVE\":\"0\",\"_SYSTEMD_CGROUP\":\"/system.slice/nginx.service\",\"_SYSTEMD_UNIT\":\"nginx.service\",\"_SYSTEMD_SLICE\":\"system.slice\",\"MESSAGE\":\"Started nginx - high performance web server\",\"_PID\":\"1234\",\"_SOURCE_REALTIME_TIMESTAMP\":\"1719173240123456\"}" }
+                }
+              ]
+            },
+            {
+              "timeUnixNano": "1719173241000000000",
+              "body": {
+                "stringValue": "{\"_BOOT_ID\":\"c4a7b6b2e9f4429db1a5a1b2c3d4e5f6\",\"_MACHINE_ID\":\"12345678901234567890123456789012\",\"_HOSTNAME\":\"web-server-01\",\"PRIORITY\":\"4\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"systemd\",\"_EXE\":\"/lib/systemd/systemd\",\"_CMDLINE\":\"/lib/systemd/systemd --system --deserialize 17\",\"_CAP_EFFECTIVE\":\"3fffffffff\",\"_SYSTEMD_CGROUP\":\"/init.scope\",\"MESSAGE\":\"Failed to start postgresql.service - PostgreSQL database server\",\"_PID\":\"1\",\"UNIT\":\"postgresql.service\",\"_SOURCE_REALTIME_TIMESTAMP\":\"1719173241456789\"}\ncluster:prod-cluster\nflags:0\njob:systemd-journal\nmeta.signal_type:log\nnode_name:web-server-01\nSample Rate:1\nseverity:warn\nseverity_code:4\ntransport:journal\n---"
+              },
+              "attributes": [
+                {
+                  "key": "body",
+                  "value": { "stringValue": "{\"_BOOT_ID\":\"c4a7b6b2e9f4429db1a5a1b2c3d4e5f6\",\"_MACHINE_ID\":\"12345678901234567890123456789012\",\"_HOSTNAME\":\"web-server-01\",\"PRIORITY\":\"4\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"systemd\",\"_EXE\":\"/lib/systemd/systemd\",\"_CMDLINE\":\"/lib/systemd/systemd --system --deserialize 17\",\"_CAP_EFFECTIVE\":\"3fffffffff\",\"_SYSTEMD_CGROUP\":\"/init.scope\",\"MESSAGE\":\"Failed to start postgresql.service - PostgreSQL database server\",\"_PID\":\"1\",\"UNIT\":\"postgresql.service\",\"_SOURCE_REALTIME_TIMESTAMP\":\"1719173241456789\"}" }
+                }
+              ]
+            },
+            {
+              "timeUnixNano": "1719173242000000000",
+              "body": {
+                "stringValue": "{\"_BOOT_ID\":\"c4a7b6b2e9f4429db1a5a1b2c3d4e5f6\",\"_MACHINE_ID\":\"12345678901234567890123456789012\",\"_HOSTNAME\":\"web-server-01\",\"PRIORITY\":\"3\",\"_UID\":\"997\",\"_GID\":\"997\",\"_COMM\":\"redis-server\",\"_EXE\":\"/usr/bin/redis-server\",\"_CMDLINE\":\"redis-server *:6379\",\"_CAP_EFFECTIVE\":\"0\",\"_SYSTEMD_CGROUP\":\"/system.slice/redis.service\",\"_SYSTEMD_UNIT\":\"redis.service\",\"_SYSTEMD_SLICE\":\"system.slice\",\"MESSAGE\":\"Connection refused by server at 127.0.0.1:6379\",\"_PID\":\"5678\",\"SYSLOG_IDENTIFIER\":\"redis-server\",\"_SOURCE_REALTIME_TIMESTAMP\":\"1719173242789012\"}\ncluster:prod-cluster\nflags:0\njob:systemd-journal\nmeta.signal_type:log\nnode_name:web-server-01\nSample Rate:1\nseverity:error\nseverity_code:3\ntransport:journal\n---"
+              },
+              "attributes": [
+                {
+                  "key": "body",
+                  "value": { "stringValue": "{\"_BOOT_ID\":\"c4a7b6b2e9f4429db1a5a1b2c3d4e5f6\",\"_MACHINE_ID\":\"12345678901234567890123456789012\",\"_HOSTNAME\":\"web-server-01\",\"PRIORITY\":\"3\",\"_UID\":\"997\",\"_GID\":\"997\",\"_COMM\":\"redis-server\",\"_EXE\":\"/usr/bin/redis-server\",\"_CMDLINE\":\"redis-server *:6379\",\"_CAP_EFFECTIVE\":\"0\",\"_SYSTEMD_CGROUP\":\"/system.slice/redis.service\",\"_SYSTEMD_UNIT\":\"redis.service\",\"_SYSTEMD_SLICE\":\"system.slice\",\"MESSAGE\":\"Connection refused by server at 127.0.0.1:6379\",\"_PID\":\"5678\",\"SYSLOG_IDENTIFIER\":\"redis-server\",\"_SOURCE_REALTIME_TIMESTAMP\":\"1719173242789012\"}" }
+                }
+              ]
+            },
+            {
+              "timeUnixNano": "1719173243000000000",
+              "body": {
+                "stringValue": "{\"errno\":\"6\",\"priority\":\"info\",\"unit\":\"containerd.service\",\"_entry\":\"time=\\\"2025-06-24T02:40:44.289387397Z\\\" level=error msg=\\\"Failed to get usage for snapshot \\\\\\\"6487b80ac3efcd6de6d58051ed406fb5013dcc38d6bcee68cf11d31b3a54c2e8\\\\\\\"\\\" error=\\\"lstat /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/61/fs/etc/service/enabled/monitor-addresses/supervise/status.new: no such file or directory\\\"\"}\ncluster:sox2-use2\nflags:0\njob:systemd-journal\nmeta.signal_type:log\nnode_name:ip-172-16-77-195.us-east-2.compute.internal\nSample Rate:1\nseverity:unspecified\nseverity_code:0\ntransport:stdout\n---"
+              },
+              "attributes": [
+                {
+                  "key": "body",
+                  "value": { "stringValue": "{\"errno\":\"6\",\"priority\":\"info\",\"unit\":\"containerd.service\",\"_entry\":\"time=\\\"2025-06-24T02:40:44.289387397Z\\\" level=error msg=\\\"Failed to get usage for snapshot \\\\\\\"6487b80ac3efcd6de6d58051ed406fb5013dcc38d6bcee68cf11d31b3a54c2e8\\\\\\\"\\\" error=\\\"lstat /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/61/fs/etc/service/enabled/monitor-addresses/supervise/status.new: no such file or directory\\\"\"}" }
+                },
+                {
+                  "key": "transport",
+                  "value": { "stringValue": "stdout" }
+                },
+                {
+                  "key": "cluster",
+                  "value": { "stringValue": "sox2-use2" }
+                },
+                {
+                  "key": "flags",
+                  "value": { "intValue": "0" }
+                },
+                {
+                  "key": "job",
+                  "value": { "stringValue": "systemd-journal" }
+                },
+                {
+                  "key": "meta.signal_type",
+                  "value": { "stringValue": "log" }
+                },
+                {
+                  "key": "node_name",
+                  "value": { "stringValue": "ip-172-16-77-195.us-east-2.compute.internal" }
+                },
+                {
+                  "key": "Sample Rate",
+                  "value": { "intValue": "1" }
+                },
+                {
+                  "key": "severity",
+                  "value": { "stringValue": "unspecified" }
+                },
+                {
+                  "key": "severity_code",
+                  "value": { "intValue": "0" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

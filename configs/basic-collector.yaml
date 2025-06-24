@@ -1,0 +1,69 @@
+receivers:
+  filelog:
+    include:
+      - /tmp/simple-logs.log
+    start_at: end
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  
+  resource:
+    attributes:
+      - key: service.name
+        value: "simple-logger"
+        action: upsert
+  
+  transform:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+          # Extract HTTP Access Logs
+          - set(attributes["client_ip"], ExtractPatterns(attributes["body"], "^(?P<ip>[0-9.]+)")["ip"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "^(?P<ip>[0-9.]+)") != nil
+          - set(attributes["remote_user"], ExtractPatterns(attributes["body"], "^[0-9.]+ - (?P<user>[^\\s]+)")["user"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "^[0-9.]+ - (?P<user>[^\\s]+)") != nil and not IsMatch(attributes["body"], "^[0-9.]+ - -")
+          - set(attributes["timestamp"], ExtractPatterns(attributes["body"], "\\[(?P<timestamp>[^\\]]+)\\]")["timestamp"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\\[(?P<timestamp>[^\\]]+)\\]") != nil
+          - set(attributes["http_status_code"], Int(ExtractPatterns(attributes["body"], "\\] (?P<status>[0-9]{3})")["status"])) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\\] (?P<status>[0-9]{3})") != nil
+          - set(attributes["http_method"], ExtractPatterns(attributes["body"], "\"(?P<method>[A-Z]+)")["method"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\"(?P<method>[A-Z]+)") != nil
+          - set(attributes["http_path"], ExtractPatterns(attributes["body"], "\"[A-Z]+ (?P<path>[^\\s\"]+)")["path"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\"[A-Z]+ (?P<path>[^\\s\"]+)") != nil
+          - set(attributes["http_protocol"], ExtractPatterns(attributes["body"], "\"[A-Z]+ [^\\s\"]+ (?P<protocol>[^\"]+)\"")["protocol"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\"[A-Z]+ [^\\s\"]+ (?P<protocol>[^\"]+)\"") != nil
+          - set(attributes["response_size"], Int(ExtractPatterns(attributes["body"], "\" (?P<size>[0-9]+) \"")["size"])) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\" (?P<size>[0-9]+) \"") != nil
+          - set(attributes["http_referer"], ExtractPatterns(attributes["body"], "\" \"(?P<referer>[^\"]+)\" \"[^\"]*\"")["referer"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\" \"(?P<referer>[^\"]+)\" \"[^\"]*\"") != nil and not IsMatch(attributes["body"], "\" \"-\" \"")
+          - set(attributes["http_user_agent"], ExtractPatterns(attributes["body"], "\" \"[^\"]*\" \"(?P<agent>[^\"]+)\"")["agent"]) where attributes["body"] != nil and ExtractPatterns(attributes["body"], "\" \"[^\"]*\" \"(?P<agent>[^\"]+)\"") != nil and not IsMatch(attributes["body"], "\" \"-\"$")
+          
+          # Add derived attributes for easier filtering
+          - set(attributes["is_success"], true) where attributes["http_status_code"] >= 200 and attributes["http_status_code"] < 300
+          - set(attributes["is_success"], false) where attributes["http_status_code"] < 200 or attributes["http_status_code"] >= 300
+          - set(attributes["is_error"], true) where attributes["http_status_code"] >= 400
+          - set(attributes["is_error"], false) where attributes["http_status_code"] < 400
+          - set(attributes["status_class"], "2xx") where attributes["http_status_code"] >= 200 and attributes["http_status_code"] < 300
+          - set(attributes["status_class"], "3xx") where attributes["http_status_code"] >= 300 and attributes["http_status_code"] < 400
+          - set(attributes["status_class"], "4xx") where attributes["http_status_code"] >= 400 and attributes["http_status_code"] < 500
+          - set(attributes["status_class"], "5xx") where attributes["http_status_code"] >= 500 and attributes["http_status_code"] < 600
+          
+          # Parse systemd logs directly from body
+          - set(attributes["errno"], ExtractPatterns(body, "\"errno\":\"(?P<errno>[^\"]+)\"")["errno"]) where ExtractPatterns(body, "\"errno\":\"(?P<errno>[^\"]+)\"") != nil
+          - set(attributes["log_priority"], ExtractPatterns(body, "\"priority\":\"(?P<priority>[^\"]+)\"")["priority"]) where ExtractPatterns(body, "\"priority\":\"(?P<priority>[^\"]+)\"") != nil
+          - set(attributes["log_entry"], ExtractPatterns(body, "\"_entry\":\"(?P<entry>.*?)\"\\}")["entry"]) where ExtractPatterns(body, "\"_entry\":\"(?P<entry>.*?)\"\\}") != nil
+          - set(attributes["systemd_unit"], ExtractPatterns(body, "\"unit\":\"(?P<unit>[^\"]+)\"")["unit"]) where ExtractPatterns(body, "\"unit\":\"(?P<unit>[^\"]+)\"") != nil
+          
+          # Extract containerd log level from _entry field
+          - set(attributes["containerd_level"], ExtractPatterns(body, "level=(?P<level>[a-z]+)")["level"]) where ExtractPatterns(body, "level=(?P<level>[a-z]+)") != nil
+          - set(attributes["containerd_msg"], ExtractPatterns(body, "msg=\\\\\\\"(?P<msg>.*?)\\\\\\\" error=")["msg"]) where ExtractPatterns(body, "msg=\\\\\\\"(?P<msg>.*?)\\\\\\\" error=") != nil
+
+exporters:
+  logging:
+    loglevel: debug
+  
+  otlp:
+    endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT}"
+    headers:
+      x-honeycomb-team: "${HONEYCOMB_API_KEY}"
+
+service:
+  pipelines:
+    logs:
+      receivers: [filelog]
+      processors: [transform, batch, resource]
+      exporters: [logging, otlp]

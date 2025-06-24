@@ -1,0 +1,96 @@
+{
+  "resourceLogs": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": { "stringValue": "mimir-nginx" }
+          }
+        ]
+      },
+      "scopeLogs": [
+        {
+          "logRecords": [
+            {
+              "timeUnixNano": "1719173240000000000",
+              "body": {
+                "stringValue": "app:mimir\nbody:172.16.74.93 - - [23/Jun/2025:20:19:08 +0000] 200 \"POST /api/v1/push HTTP/1.1\" 0 \"-\" \"Prometheus/2.54.0\" \"-\"\ncluster:sox2-use2\ncomponent:nginx\ncontainer:nginx\nfilename:/var/log/pods/seeq-observability_mimir-nginx-7578d9dc75-4xt8n_88db00d8-0e3a-40d0-b544-03335b2f073f/nginx/0.log\nflags:0\ninstance:mimir\njob:seeq-observability/mimir\nmeta.signal_type:log\nnamespace:seeq-observability\nnode_name:ip-172-16-67-47.us-east-2.compute.internal\npod:mimir-nginx-7578d9dc75-4xt8n\nSample Rate:1\nseverity:unspecified\nseverity_code:0\nstream:stderr\n---"
+              },
+              "attributes": [
+                {
+                  "key": "app",
+                  "value": { "stringValue": "mimir" }
+                },
+                {
+                  "key": "body",
+                  "value": { "stringValue": "172.16.74.93 - - [23/Jun/2025:20:19:08 +0000] 200 \"POST /api/v1/push HTTP/1.1\" 0 \"-\" \"Prometheus/2.54.0\" \"-\"" }
+                },
+                {
+                  "key": "cluster",
+                  "value": { "stringValue": "sox2-use2" }
+                },
+                {
+                  "key": "component",
+                  "value": { "stringValue": "nginx" }
+                },
+                {
+                  "key": "container",
+                  "value": { "stringValue": "nginx" }
+                },
+                {
+                  "key": "filename",
+                  "value": { "stringValue": "/var/log/pods/seeq-observability_mimir-nginx-7578d9dc75-4xt8n_88db00d8-0e3a-40d0-b544-03335b2f073f/nginx/0.log" }
+                },
+                {
+                  "key": "flags",
+                  "value": { "intValue": "0" }
+                },
+                {
+                  "key": "instance",
+                  "value": { "stringValue": "mimir" }
+                },
+                {
+                  "key": "job",
+                  "value": { "stringValue": "seeq-observability/mimir" }
+                },
+                {
+                  "key": "meta.signal_type",
+                  "value": { "stringValue": "log" }
+                },
+                {
+                  "key": "namespace",
+                  "value": { "stringValue": "seeq-observability" }
+                },
+                {
+                  "key": "node_name",
+                  "value": { "stringValue": "ip-172-16-67-47.us-east-2.compute.internal" }
+                },
+                {
+                  "key": "pod",
+                  "value": { "stringValue": "mimir-nginx-7578d9dc75-4xt8n" }
+                },
+                {
+                  "key": "Sample Rate",
+                  "value": { "intValue": "1" }
+                },
+                {
+                  "key": "severity",
+                  "value": { "stringValue": "unspecified" }
+                },
+                {
+                  "key": "severity_code",
+                  "value": { "intValue": "0" }
+                },
+                {
+                  "key": "stream",
+                  "value": { "stringValue": "stderr" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

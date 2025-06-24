@@ -1,0 +1,50 @@
+{
+  "resourceLogs": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": { "stringValue": "loki-distributed" }
+          }
+        ]
+      },
+      "scopeLogs": [
+        {
+          "logRecords": [
+            {
+              "timeUnixNano": "1719173240000000000",
+              "body": {
+                "stringValue": "app:loki-distributed\nbody:level=info ts=2025-06-23T14:32:15.123456789Z caller=server.go:323 component=distributor msg=\"starting distributor\" user=tenant-1\ncluster:prod-cluster\ncomponent:distributor\ncontainer:distributor\nfilename:/var/log/pods/loki-system_loki-distributor-6b8d7c9f4-abc12_88070cb9-0de1-49f2-9960-b3229535a29c/distributor/0.log\nflags:0\ninstance:loki-distributor\njob:loki-system/loki-distributed\nmeta.signal_type:log\nnamespace:loki-system\nnode_name:loki-node-01\npod:loki-distributor-6b8d7c9f4-abc12\nSample Rate:1\nseverity:info\nseverity_code:6\nstream:stdout\n---"
+              }
+            },
+            {
+              "timeUnixNano": "1719173241000000000",
+              "body": {
+                "stringValue": "app:loki-distributed\nbody:level=info ts=2025-06-23T14:32:16.456789012Z caller=metrics.go:160 component=querier org_id=tenant-1 traceID=a1b2c3d4e5f67890 latency=fast query=\"{job=\\\"nginx\\\"} |= \\\"error\\\" | json | status_code >= 400\" query_hash=1234567890 query_type=filter range_type=range length=5m0s start_delta=5m5.456789012s end_delta=5.456789012s step=1s duration=25.123456ms status=200 limit=1000 returned_lines=42 throughput=2.1KB total_bytes=2150B total_bytes_structured_metadata=0B lines_per_second=1680 total_lines=42 post_filter_lines=42 total_entries=42 store_chunks_download_time=15.5ms queue_time=2.1ms splits=2 shards=1 chunk_refs_fetch_time=8.2ms\ncluster:prod-cluster\ncomponent:querier\ncontainer:querier\nfilename:/var/log/pods/loki-system_loki-querier-8c68d74b7-def34_88070cb9-0de1-49f2-9960-b3229535a29c/querier/0.log\nflags:0\ninstance:loki-querier\njob:loki-system/loki-distributed\nmeta.signal_type:log\nnamespace:loki-system\nnode_name:loki-node-02\npod:loki-querier-8c68d74b7-def34\nSample Rate:1\nseverity:info\nseverity_code:6\nstream:stdout\n---"
+              }
+            },
+            {
+              "timeUnixNano": "1719173242000000000",
+              "body": {
+                "stringValue": "app:loki-distributed\nbody:level=warn ts=2025-06-23T14:32:17.789012345Z caller=ingester.go:245 component=ingester msg=\"failed to flush chunks\" tenant=tenant-2 error=\"context deadline exceeded\" chunks=15 retries=3\ncluster:prod-cluster\ncomponent:ingester\ncontainer:ingester\nfilename:/var/log/pods/loki-system_loki-ingester-7d9e8f0a1-ghi56_88070cb9-0de1-49f2-9960-b3229535a29c/ingester/0.log\nflags:0\ninstance:loki-ingester\njob:loki-system/loki-distributed\nmeta.signal_type:log\nnamespace:loki-system\nnode_name:loki-node-03\npod:loki-ingester-7d9e8f0a1-ghi56\nSample Rate:1\nseverity:warn\nseverity_code:4\nstream:stderr\n---"
+              }
+            },
+            {
+              "timeUnixNano": "1719173243000000000",
+              "body": {
+                "stringValue": "app:loki-distributed\nbody:level=error ts=2025-06-23T14:32:18.012345678Z caller=compactor.go:412 component=compactor msg=\"failed to compact table\" table=index_19895 error=\"failed to download blocks: connection refused\" retry_after=30s\ncluster:prod-cluster\ncomponent:compactor\ncontainer:compactor\nfilename:/var/log/pods/loki-system_loki-compactor-9f1a2b3c4-jkl78_88070cb9-0de1-49f2-9960-b3229535a29c/compactor/0.log\nflags:0\ninstance:loki-compactor\njob:loki-system/loki-distributed\nmeta.signal_type:log\nnamespace:loki-system\nnode_name:loki-node-04\npod:loki-compactor-9f1a2b3c4-jkl78\nSample Rate:1\nseverity:error\nseverity_code:3\nstream:stderr\n---"
+              }
+            },
+            {
+              "timeUnixNano": "1719173244000000000",
+              "body": {
+                "stringValue": "app:loki-distributed\nbody:level=debug ts=2025-06-23T14:32:19.345678901Z caller=ruler.go:567 component=ruler msg=\"evaluating rule group\" group=alerts.rules tenant=tenant-1 interval=30s rules=5 duration=12.5ms\ncluster:prod-cluster\ncomponent:ruler\ncontainer:ruler\nfilename:/var/log/pods/loki-system_loki-ruler-a2b3c4d5e-mno90_88070cb9-0de1-49f2-9960-b3229535a29c/ruler/0.log\nflags:0\ninstance:loki-ruler\njob:loki-system/loki-distributed\nmeta.signal_type:log\nnamespace:loki-system\nnode_name:loki-node-05\npod:loki-ruler-a2b3c4d5e-mno90\nSample Rate:1\nseverity:debug\nseverity_code:7\nstream:stdout\n---"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
