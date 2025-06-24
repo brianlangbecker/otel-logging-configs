@@ -2,6 +2,8 @@
 
 A collection of structured log parsing examples and tools for testing with OTTL.run and creating Honeycomb derived columns.
 
+Note: parse at ingest is generally easier than creating derived columns. The collector examples should help but using predefined receivers for JournalD/SystemD, Ngnix, Apache etc tend to work better but those examples are showing how to parse and break down files that may not comply with what the receiver can provide. Beyond that using Honeycomb HTP, provides many sophistacted receivers with parsing setup before hand.
+
 ## Overview
 
 This project provides:
@@ -201,21 +203,27 @@ To set up a universal message field in Honeycomb, create a derived column named 
 ```javascript
 // Universal message extractor for all 3 log types
 IF(
-  CONTAINS($body, '{"errno"'),
-  REG_VALUE($body, '"_entry":"([^"]+)"'),
+  REG_MATCH($body, 'error=\\"([^\\"]+)\\"'),
+  REG_VALUE($body, 'error=\\"([^\\"]+)\\"'),
   IF(
-    CONTAINS($body, 'HTTP/1.1'),
-    CONCAT(
-      REG_VALUE($body, '"([A-Z]+)'),
-      ':',
-      REG_VALUE($body, '[A-Z]+ ([^\\s]+)'),
-      ':',
-      REG_VALUE($body, '\\] (\\d+) "')
-    ),
+    REG_MATCH($body, '\\"((GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS) [^ ]+)'),
+    REG_VALUE($body, '\\"((GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS) [^ ]+)'),
     IF(
-      CONTAINS($body, 'query='),
-      REG_VALUE($body, 'query="([^"]+)"'),
-      'unknown'
+      REG_MATCH($body, 'msg=\\"([^\\"]+)\\"'),
+      REG_VALUE($body, 'msg=\\"([^\\"]+)\\"'),
+      IF(
+        REG_MATCH($body, '\\"msg\\":\\"([^\\"]+)\\"'),
+        REG_VALUE($body, '\\"msg\\":\\"([^\\"]+)\\"'),
+        IF(
+          REG_MATCH($body, 'query_type=([^ ]+)'),
+          REG_VALUE($body, 'query_type=([^ ]+)'),
+          IF(
+            REG_MATCH($body, '_entry\\":\\"([^\\"]+)'),
+            REG_VALUE($body, '_entry\\":\\"([^\\"]+)'),
+            $body
+          )
+        )
+      )
     )
   )
 )
@@ -238,53 +246,26 @@ This creates a unified `message` field that extracts:
 
 ### Derived Columns/Calculated Fields Examples
 
-#### Extract Important Messages (Universal) for viewing in UI
-
-```javascript
-// Universal message extractor - works for all 3 log types
-IF(
-  CONTAINS($body, '{"errno"'),
-  REG_VALUE($body, '"_entry":"([^"]+)"'),
-  IF(
-    CONTAINS($body, 'HTTP/1.1'),
-    CONCAT(
-      REG_VALUE($body, '"([A-Z]+)'),
-      ':',
-      REG_VALUE($body, '[A-Z]+ ([^\\s]+)'),
-      ':'
-    ),
-    IF(
-      CONTAINS($body, 'query='),
-      REG_VALUE($body, 'query="([^"]+)"'),
-      'unknown'
-    )
-  )
-)
-```
-
 #### Extract HTTP Fields from Body
 
 ```javascript
 // HTTP Status Code
-REG_VALUE($body, '\\] (\\d+) "')
+INT(REG_VALUE($body, '\\[.*?\\]\\s+(\\d{3})\\s+\\"'))
 
 // HTTP Method
-REG_VALUE($body, '"([A-Z]+)')
+REG_VALUE($body, '\\"([A-Z]+)')
 
 // Client IP Address
 REG_VALUE($body, '^(\\d+\\.\\d+\\.\\d+\\.\\d+)')
 
 // Request Path
-REG_VALUE($body, '[A-Z]+ ([^\\s]+)')
-
-// User Agent
-REG_VALUE($body, '"([^"]+)" "-"$')
+REG_VALUE($body, '[A-Z]+\\s+([^\\s]+)')
 ```
 
 #### Extract JSON Fields from Systemd Logs
 
 ````javascript
-// Log Priority
+// Log Priority, aka info, ...
 REG_VALUE($body, "\"priority\":\"([^\"]+)\"")
 
 // Log Entry Message
@@ -295,10 +276,10 @@ REG_VALUE($body, "\"_entry\":\"([^\"]+)\"")
 
 ```javascript
 // For Nginx logs: "POST:/api/v1/push:200"
-CONCAT(REG_VALUE($body, "\"([A-Z]+)"), ":", REG_VALUE($body, "[A-Z]+ ([^\\s]+)"), ":", REG_VALUE($body, "\\] (\\d+) \""))
+CONCAT(REG_VALUE($body, "\"([A-Z]+)"), ":", REG_VALUE($body, "[A-Z]+ ([^\\s]+)"), REG_VALUE($body, "\\] (\\d+) \""))
 
 // For Systemd logs: "_entry" field
-REG_VALUE($body, "\"_entry\":\"([^\"]+)\"")
+REG_VALUE($body, "\"\_entry\":\"([^\"]+)\"")
 
 // For Loki logs: LogQL query
 REG_VALUE($body, "query=\"([^\"]+)\"")
@@ -306,57 +287,30 @@ REG_VALUE($body, "query=\"([^\"]+)\"")
 
 ### Calculated Fields Examples
 
-#### HTTP Status Categorization
-
-```javascript
-// Using conditional operators (IF function)
-IF(
-  STARTS_WITH(REG_VALUE($body, '\\] (\\d+) "'), '2'),
-  'Success',
-  IF(
-    STARTS_WITH(REG_VALUE($body, '\\] (\\d+) "'), '3'),
-    'Redirect',
-    IF(
-      STARTS_WITH(REG_VALUE($body, '\\] (\\d+) "'), '4'),
-      'Client Error',
-      IF(
-        STARTS_WITH(REG_VALUE($body, '\\] (\\d+) "'), '5'),
-        'Server Error',
-        'Unknown'
-      )
-    )
-  )
-)
-```
-
 #### Log Type Detection
 
 ```javascript
 // Using EXISTS and CONTAINS functions
 IF(
-  CONTAINS($body, '{"errno"'),
+  CONTAINS($body, '{\\"errno\\"'),
   'systemd',
   IF(CONTAINS($body, 'HTTP/1.1'), 'nginx', 'unknown')
 )
-```
-
-#### Priority Level Mapping
-
-```javascript
-// Using nested IF conditions
-IF(REG_VALUE($body, "\"priority\":\"([^\"]+)\"") = "debug", 1,
-   IF(REG_VALUE($body, "\"priority\":\"([^\"]+)\"") = "info", 2,
-      IF(REG_VALUE($body, "\"priority\":\"([^\"]+)\"") = "warn", 3,
-         IF(REG_VALUE($body, "\"priority\":\"([^\"]+)\"") = "error", 4, 0))))
 ```
 
 #### Error Detection (Boolean)
 
 ```javascript
 // Using OR conditions with STARTS_WITH
-STARTS_WITH(REG_VALUE($body, "\\] (\\d+) \""), "4") OR
-STARTS_WITH(REG_VALUE($body, "\\] (\\d+) \""), "5") OR
-REG_VALUE($body, "\"priority\":\"([^\"]+)\"") = "error"
+IF(
+  OR(
+    STARTS_WITH(REG_VALUE($body, '\\] (\\d{3}) '), '4'),
+    STARTS_WITH(REG_VALUE($body, '\\] (\\d{3}) '), '5'),
+    EQUALS(REG_VALUE($body, '\\"priority\\":\\"([^\\"]+)'), 'error')
+  ),
+  'error',
+  'ok'
+)
 ```
 
 #### API Endpoint Categorization
@@ -364,40 +318,17 @@ REG_VALUE($body, "\"priority\":\"([^\"]+)\"") = "error"
 ```javascript
 // Using nested IF with STARTS_WITH
 IF(
-  STARTS_WITH(REG_VALUE($body, '"[A-Z]+ ([^"]+)"'), '/api/v1/'),
+  STARTS_WITH(REG_VALUE($body, '\\"[A-Z]+ ([^\\"]+)'), '/api/v1/'),
   'API v1',
   IF(
-    STARTS_WITH(REG_VALUE($body, '"[A-Z]+ ([^"]+)"'), '/api/v2/'),
+    STARTS_WITH(REG_VALUE($body, '\\"[A-Z]+ ([^\\"]+)'), '/api/v2/'),
     'API v2',
     IF(
-      STARTS_WITH(REG_VALUE($body, '"[A-Z]+ ([^"]+)"'), '/health'),
+      STARTS_WITH(REG_VALUE($body, '\\"[A-Z]+ ([^\\"]+)'), '/health'),
       'Health Check',
       IF(
-        STARTS_WITH(REG_VALUE($body, '"[A-Z]+ ([^"]+)"'), '/metrics'),
+        STARTS_WITH(REG_VALUE($body, '\\"[A-Z]+ ([^\\"]+)'), '/metrics'),
         'Metrics',
-        'Other'
-      )
-    )
-  )
-)
-```
-
-#### Browser Detection from User Agent
-
-```javascript
-// Using CONTAINS function with nested IF
-IF(
-  CONTAINS(REG_VALUE($body, '"([^"]+)" "-"$'), 'Chrome'),
-  'Chrome',
-  IF(
-    CONTAINS(REG_VALUE($body, '"([^"]+)" "-"$'), 'Firefox'),
-    'Firefox',
-    IF(
-      CONTAINS(REG_VALUE($body, '"([^"]+)" "-"$'), 'Safari'),
-      'Safari',
-      IF(
-        CONTAINS(REG_VALUE($body, '"([^"]+)" "-"$'), 'Prometheus'),
-        'Prometheus',
         'Other'
       )
     )
@@ -412,7 +343,6 @@ IF(
 3. **Add error handling**: Use nested `IF()` statements or `EXISTS()` functions for missing values
 4. **Performance**: Derived columns are calculated at query time, so simpler expressions perform better
 5. **Debugging**: Start with simple extractions and build complexity gradually
-6. **Use proper functions**: Honeycomb uses `IF()`, `CONTAINS()`, `STARTS_WITH()`, and `OR`/`AND` instead of `CASE` statements
 
 ### When to Use Derived Columns vs OTEL Parsing
 
