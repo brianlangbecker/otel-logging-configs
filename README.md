@@ -141,12 +141,20 @@ The collector will:
 
 ## Configuration Details
 
-The `basic-collector.yaml` includes:
+The `basic-collector.yaml` includes separate pipelines for different log sources:
 
-- **filelog receiver**: Reads from `/tmp/simple-logs.log`
-- **transform processor**: Parses key-value pairs and JSON bodies
+### Nginx Pipeline (`logs/nginx`)
+- **filelog/nginx receiver**: Reads from `/var/log/nginx/access.log`
+- **transform/nginx processor**: Parses HTTP access log fields
+- **resource/nginx processor**: Adds nginx service labels
 - **batch processor**: Batches logs for efficient export
-- **resource processor**: Adds service name
+- **OTLP exporter**: Sends to Honeycomb or other OTLP endpoints
+
+### Systemd Pipeline (`logs/systemd`)
+- **journald receiver**: Reads from systemd journal (`/var/log/journal`)
+- **transform/systemd processor**: Parses systemd journal fields
+- **resource/systemd processor**: Adds systemd service labels
+- **batch processor**: Batches logs for efficient export
 - **OTLP exporter**: Sends to Honeycomb or other OTLP endpoints
 
 ## Parsed Attributes
@@ -264,26 +272,31 @@ REG_VALUE($body, '[A-Z]+\\s+([^\\s]+)')
 
 #### Extract JSON Fields from Systemd Logs
 
-````javascript
+```javascript
 // Log Priority, aka info, ...
-REG_VALUE($body, "\"priority\":\"([^\"]+)\"")
+REG_VALUE($body, '"priority":"([^"]+)"')
 
 // Log Entry Message
-REG_VALUE($body, "\"_entry\":\"([^\"]+)\"")
-
+REG_VALUE($body, '"_entry":"([^"]+)"')
+```
 
 #### Extract Important Messages (Individual Functions)
 
 ```javascript
 // For Nginx logs: "POST:/api/v1/push:200"
-CONCAT(REG_VALUE($body, "\"([A-Z]+)"), ":", REG_VALUE($body, "[A-Z]+ ([^\\s]+)"), REG_VALUE($body, "\\] (\\d+) \""))
+CONCAT(
+  REG_VALUE($body, '"([A-Z]+)'),
+  ':',
+  REG_VALUE($body, '[A-Z]+ ([^\\s]+)'),
+  REG_VALUE($body, '\\] (\\d+) "')
+)
 
 // For Systemd logs: "_entry" field
-REG_VALUE($body, "\"\_entry\":\"([^\"]+)\"")
+REG_VALUE($body, '"_entry":"([^"]+)"')
 
 // For Loki logs: LogQL query
-REG_VALUE($body, "query=\"([^\"]+)\"")
-````
+REG_VALUE($body, 'query="([^"]+)"')
+```
 
 ### Calculated Fields Examples
 
